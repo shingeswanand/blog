@@ -1,43 +1,79 @@
 import { ObjectId } from "mongodb";
 import { getMongoClient, hasMongoConfig } from "@/lib/mongodb";
 
+export type PostStatus = "draft" | "published";
+
 export type BlogPost = {
   _id?: ObjectId;
   title: string;
   slug: string;
   excerpt: string;
   content: string;
-  status: "draft" | "published";
+  category: string;
+  tags: string[];
+  status: PostStatus;
   createdAt?: Date;
+  updatedAt?: Date;
+};
+
+export type CreatePostInput = {
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content: string;
+  category?: string;
+  tags?: string[];
+  status: PostStatus;
 };
 
 const DB_NAME = process.env.MONGODB_DB ?? "blog_cms";
 const COLLECTION = "posts";
 
-export async function getPosts() {
-  if (!hasMongoConfig) {
-    return [] as BlogPost[];
-  }
-
-  const client = await getMongoClient();
-  return client
-    .db(DB_NAME)
-    .collection<BlogPost>(COLLECTION)
-    .find({})
-    .sort({ createdAt: -1 })
-    .toArray();
+function postsCollection(client: Awaited<ReturnType<typeof getMongoClient>>) {
+  return client.db(DB_NAME).collection<BlogPost>(COLLECTION);
 }
 
-export async function createPost(post: BlogPost) {
+export async function getPosts() {
+  if (!hasMongoConfig) return [] as BlogPost[];
+
+  const client = await getMongoClient();
+  return postsCollection(client).find({}).sort({ createdAt: -1 }).toArray();
+}
+
+export async function getPublishedPosts() {
+  if (!hasMongoConfig) return [] as BlogPost[];
+
+  const client = await getMongoClient();
+  return postsCollection(client).find({ status: "published" }).sort({ createdAt: -1 }).toArray();
+}
+
+export async function getPostBySlug(slug: string) {
+  if (!hasMongoConfig) return null;
+
+  const client = await getMongoClient();
+  return postsCollection(client).findOne({ slug, status: "published" });
+}
+
+export async function createPost(input: CreatePostInput) {
   if (!hasMongoConfig) {
     throw new Error("Missing MongoDB configuration");
   }
 
+  const now = new Date();
+  const post: BlogPost = {
+    title: input.title,
+    slug: input.slug,
+    excerpt: input.excerpt?.trim() || "",
+    content: input.content,
+    category: input.category?.trim() || "General",
+    tags: (input.tags ?? []).map((tag) => tag.trim()).filter(Boolean),
+    status: input.status,
+    createdAt: now,
+    updatedAt: now
+  };
+
   const client = await getMongoClient();
-  const result = await client
-    .db(DB_NAME)
-    .collection<BlogPost>(COLLECTION)
-    .insertOne({ ...post, createdAt: new Date() });
+  const result = await postsCollection(client).insertOne(post);
 
   return { ...post, _id: result.insertedId };
 }
@@ -48,8 +84,5 @@ export async function deletePost(id: string) {
   }
 
   const client = await getMongoClient();
-  await client
-    .db(DB_NAME)
-    .collection<BlogPost>(COLLECTION)
-    .deleteOne({ _id: new ObjectId(id) });
+  await postsCollection(client).deleteOne({ _id: new ObjectId(id) });
 }

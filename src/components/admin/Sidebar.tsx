@@ -2,7 +2,8 @@ import Link from "next/link";
 
 const links = [
   { href: "/admin", label: "Dashboard" },
-  { href: "/admin/posts", label: "Posts" }
+  { href: "/admin/posts", label: "Posts" },
+  { href: "/posts", label: "Frontend" }
 ];
 
 export function Sidebar() {

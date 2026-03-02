@@ -10,13 +10,19 @@ const initialForm = {
   title: "",
   slug: "",
   excerpt: "",
+  category: "General",
+  tags: "",
   content: "",
-  status: "draft"
+  status: "draft" as "draft" | "published"
 };
 
 export function PostForm({ onSuccess }: Props) {
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
+
+  function appendMarkdown(snippet: string) {
+    setForm((prev) => ({ ...prev, content: prev.content ? `${prev.content}\n${snippet}` : snippet }));
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -25,7 +31,13 @@ export function PostForm({ onSuccess }: Props) {
     await fetch("/api/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
+      body: JSON.stringify({
+        ...form,
+        tags: form.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+      })
     });
 
     setLoading(false);
@@ -50,6 +62,20 @@ export function PostForm({ onSuccess }: Props) {
         value={form.slug}
         onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value }))}
       />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <input
+          className="input"
+          placeholder="Category"
+          value={form.category}
+          onChange={(e) => setForm((prev) => ({ ...prev, category: e.target.value }))}
+        />
+        <input
+          className="input"
+          placeholder="Tags (comma separated)"
+          value={form.tags}
+          onChange={(e) => setForm((prev) => ({ ...prev, tags: e.target.value }))}
+        />
+      </div>
       <textarea
         className="input"
         rows={2}
@@ -57,11 +83,20 @@ export function PostForm({ onSuccess }: Props) {
         value={form.excerpt}
         onChange={(e) => setForm((prev) => ({ ...prev, excerpt: e.target.value }))}
       />
+      <div className="rounded border border-adminBorder p-2">
+        <p className="mb-2 text-xs text-slate-500">Quick editor tools</p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="button-secondary" onClick={() => appendMarkdown("## Heading")}>H2</button>
+          <button type="button" className="button-secondary" onClick={() => appendMarkdown("**Bold text**")}>Bold</button>
+          <button type="button" className="button-secondary" onClick={() => appendMarkdown("- List item")}>List</button>
+          <button type="button" className="button-secondary" onClick={() => appendMarkdown("> Quote")}>Quote</button>
+        </div>
+      </div>
       <textarea
         required
-        className="input"
-        rows={6}
-        placeholder="Content"
+        className="input font-mono"
+        rows={8}
+        placeholder="Content (Markdown supported)"
         value={form.content}
         onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
       />

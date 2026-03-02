@@ -1,6 +1,6 @@
 # Blog CMS (Next.js + MongoDB)
 
-A starter CMS for managing blog posts with a WordPress-like admin panel.
+A simple CMS for managing blog posts with a WordPress-like admin panel and a frontend blog experience.
 
 ## Stack
 
@@ -11,11 +11,15 @@ A starter CMS for managing blog posts with a WordPress-like admin panel.
 
 ## Features
 
-- Admin Dashboard with post stats
-- Posts management page (add and delete posts)
-- REST API routes for posts
-- MongoDB connection helper
-- WordPress-like admin sidebar and top header layout
+- Admin dashboard with post analytics (total, published, drafts, top category)
+- Posts management with category and tags
+- Markdown-style content editor helpers in admin form
+- REST API routes for post create/list/delete
+- Public frontend:
+  - home page with featured/latest published posts
+  - all posts listing page
+  - single post detail page by slug
+- MongoDB connection helper with safe behavior when env config is missing
 
 ## Setup
 
@@ -42,12 +46,12 @@ A starter CMS for managing blog posts with a WordPress-like admin panel.
 5. Open:
 
    - Frontend: `http://localhost:3000`
+   - All posts: `http://localhost:3000/posts`
    - Admin: `http://localhost:3000/admin`
 
 ## Next improvements
 
-- Authentication for admin routes
-- Rich text editor (TipTap / Slate)
+- Authentication/roles for admin routes
+- True rich text editor (TipTap / Slate)
 - Media library uploads
-- Categories and tags
-- Edit post and trash/recover flows
+- Edit post flow and scheduled publishing

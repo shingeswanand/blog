@@ -16,7 +16,9 @@ export default async function AdminPostsPage() {
       <PostsManager
         posts={posts.map((post) => ({
           ...post,
-          _id: post._id?.toString()
+          _id: post._id?.toString(),
+          category: post.category ?? "General",
+          tags: post.tags ?? []
         }))}
       />
     </AdminLayout>

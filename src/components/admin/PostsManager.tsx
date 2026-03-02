@@ -8,6 +8,8 @@ type Row = {
   _id?: string;
   title: string;
   slug: string;
+  category: string;
+  tags: string[];
   status: string;
   createdAt?: Date;
 };
@@ -16,7 +18,7 @@ export function PostsManager({ posts }: { posts: Row[] }) {
   const router = useRouter();
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+    <div className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
       <PostForm onSuccess={() => router.refresh()} />
       <PostsTable posts={posts} />
     </div>

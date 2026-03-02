@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasMongoConfig } from "@/lib/mongodb";
-import { createPost, getPosts } from "@/lib/posts";
+import { createPost, getPosts, type CreatePostInput } from "@/lib/posts";
 
 export async function GET() {
   if (!hasMongoConfig) {
@@ -22,13 +22,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
   }
 
-  const post = await createPost({
+  const postInput: CreatePostInput = {
     title: body.title,
     slug: body.slug,
     excerpt: body.excerpt ?? "",
     content: body.content,
+    category: body.category ?? "General",
+    tags: Array.isArray(body.tags) ? body.tags : [],
     status: body.status === "published" ? "published" : "draft"
-  });
+  };
 
+  const post = await createPost(postInput);
   return NextResponse.json(post, { status: 201 });
 }
