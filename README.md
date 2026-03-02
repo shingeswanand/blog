@@ -31,6 +31,13 @@ A starter CMS for managing blog posts with a WordPress-like admin panel.
    cp .env.example .env.local
    ```
 
+   Your `.env.local` should contain:
+
+   ```env
+   MONGODB_URI=mongodb://localhost:27017
+   MONGODB_DB=blog_cms
+   ```
+
 3. Start MongoDB locally or update your `MONGODB_URI`.
 
 4. Run the app:
