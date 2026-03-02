@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-adminBg text-adminText;
+}
+
+.card {
+  @apply rounded border border-adminBorder bg-white shadow-sm;
+}
+
+.input {
+  @apply w-full rounded border border-adminBorder bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none;
+}
+
+.button-primary {
+  @apply rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90;
+}
+
+.button-secondary {
+  @apply rounded border border-adminBorder bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50;
+}
