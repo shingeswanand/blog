@@ -18,17 +18,26 @@ type BlogPostDocument = Omit<BlogPost, "_id"> & {
 const DB_NAME = process.env.MONGODB_DB ?? "blog_cms";
 const COLLECTION = "posts";
 
-export async function getPosts() {
+function mapDocumentToPost(doc: BlogPostDocument): BlogPost {
+  return {
+    ...doc,
+    _id: doc._id.toString()
+  };
+}
+
+export async function getPosts(): Promise<BlogPost[]> {
   const client = await clientPromise;
-  return client
+  const docs = await client
     .db(DB_NAME)
     .collection<BlogPostDocument>(COLLECTION)
     .find({})
     .sort({ createdAt: -1 })
     .toArray();
+
+  return docs.map(mapDocumentToPost);
 }
 
-export async function createPost(post: Omit<BlogPost, "_id" | "createdAt">) {
+export async function createPost(post: Omit<BlogPost, "_id" | "createdAt">): Promise<BlogPost> {
   const client = await clientPromise;
   const result = await client
     .db(DB_NAME)
@@ -38,10 +47,16 @@ export async function createPost(post: Omit<BlogPost, "_id" | "createdAt">) {
   return { ...post, _id: result.insertedId.toString() };
 }
 
-export async function deletePost(id: string) {
+export async function deletePost(id: string): Promise<boolean> {
+  if (!ObjectId.isValid(id)) {
+    return false;
+  }
+
   const client = await clientPromise;
-  await client
+  const result = await client
     .db(DB_NAME)
     .collection<BlogPostDocument>(COLLECTION)
     .deleteOne({ _id: new ObjectId(id) });
+
+  return result.deletedCount > 0;
 }
