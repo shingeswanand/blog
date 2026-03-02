@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import clientPromise from "@/lib/mongodb";
+import { getMongoClientPromise, hasMongoConfig } from "@/lib/mongodb";
 
 export type BlogPost = {
   _id?: string;
@@ -28,7 +28,11 @@ function mapDocumentToPost(doc: BlogPostDocument): BlogPost {
 }
 
 export async function getPosts(): Promise<BlogPost[]> {
-  const client = await clientPromise;
+  if (!hasMongoConfig) {
+    return [];
+  }
+
+  const client = await getMongoClientPromise();
   const docs = await client
     .db(DB_NAME)
     .collection<BlogPostDocument>(COLLECTION)
@@ -40,7 +44,7 @@ export async function getPosts(): Promise<BlogPost[]> {
 }
 
 export async function createPost(post: CreatePostInput): Promise<BlogPost> {
-  const client = await clientPromise;
+  const client = await getMongoClientPromise();
   const createdAt = new Date();
   const result = await client
     .db(DB_NAME)
@@ -55,7 +59,7 @@ export async function deletePost(id: string): Promise<boolean> {
     return false;
   }
 
-  const client = await clientPromise;
+  const client = await getMongoClientPromise();
   const result = await client
     .db(DB_NAME)
     .collection<BlogPostDocument>(COLLECTION)

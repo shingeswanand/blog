@@ -2,8 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createPost, getPosts, type CreatePostInput } from "@/lib/posts";
 
 export async function GET() {
-  const posts = await getPosts();
-  return NextResponse.json(posts);
+  try {
+    const posts = await getPosts();
+    return NextResponse.json(posts);
+  } catch (error) {
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "Unable to fetch posts" },
+      { status: 500 }
+    );
+  }
 }
 
 function toCreatePostInput(body: Record<string, unknown>): CreatePostInput | null {
@@ -32,7 +39,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
   }
 
-  const post = await createPost(input);
-
-  return NextResponse.json(post, { status: 201 });
+  try {
+    const post = await createPost(input);
+    return NextResponse.json(post, { status: 201 });
+  } catch (error) {
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "Unable to create post" },
+      { status: 500 }
+    );
+  }
 }

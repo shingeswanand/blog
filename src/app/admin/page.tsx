@@ -1,4 +1,5 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { hasMongoConfig } from "@/lib/mongodb";
 import { getPosts } from "@/lib/posts";
 
 export default async function AdminDashboardPage() {
@@ -7,6 +8,11 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminLayout title="Dashboard">
+      {!hasMongoConfig ? (
+        <div className="mb-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+          MongoDB is not configured. Add <code>MONGODB_URI</code> in <code>.env.local</code>.
+        </div>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-3">
         <div className="card p-4">
           <h3 className="text-sm text-slate-500">Total Posts</h3>
