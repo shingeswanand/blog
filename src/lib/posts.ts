@@ -11,6 +11,8 @@ export type BlogPost = {
   createdAt?: Date;
 };
 
+export type CreatePostInput = Omit<BlogPost, "_id" | "createdAt">;
+
 type BlogPostDocument = Omit<BlogPost, "_id"> & {
   _id: ObjectId;
 };
@@ -37,14 +39,15 @@ export async function getPosts(): Promise<BlogPost[]> {
   return docs.map(mapDocumentToPost);
 }
 
-export async function createPost(post: Omit<BlogPost, "_id" | "createdAt">): Promise<BlogPost> {
+export async function createPost(post: CreatePostInput): Promise<BlogPost> {
   const client = await clientPromise;
+  const createdAt = new Date();
   const result = await client
     .db(DB_NAME)
     .collection<BlogPostDocument>(COLLECTION)
-    .insertOne({ ...post, createdAt: new Date() });
+    .insertOne({ ...post, createdAt });
 
-  return { ...post, _id: result.insertedId.toString() };
+  return { ...post, createdAt, _id: result.insertedId.toString() };
 }
 
 export async function deletePost(id: string): Promise<boolean> {

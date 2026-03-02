@@ -1,25 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPost, getPosts } from "@/lib/posts";
+import { createPost, getPosts, type CreatePostInput } from "@/lib/posts";
 
 export async function GET() {
   const posts = await getPosts();
   return NextResponse.json(posts);
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
+function toCreatePostInput(body: Record<string, unknown>): CreatePostInput | null {
+  if (
+    typeof body.title !== "string" ||
+    typeof body.slug !== "string" ||
+    typeof body.content !== "string"
+  ) {
+    return null;
+  }
 
-  if (!body.title || !body.slug || !body.content) {
+  return {
+    title: body.title,
+    slug: body.slug,
+    content: body.content,
+    excerpt: typeof body.excerpt === "string" ? body.excerpt : "",
+    status: body.status === "published" ? "published" : "draft"
+  };
+}
+
+export async function POST(req: NextRequest) {
+  const body = (await req.json()) as Record<string, unknown>;
+  const input = toCreatePostInput(body);
+
+  if (!input) {
     return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
   }
 
-  const post = await createPost({
-    title: body.title,
-    slug: body.slug,
-    excerpt: body.excerpt ?? "",
-    content: body.content,
-    status: body.status === "published" ? "published" : "draft"
-  });
+  const post = await createPost(input);
 
   return NextResponse.json(post, { status: 201 });
 }
