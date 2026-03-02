@@ -51,6 +51,34 @@ A starter CMS for managing blog posts with a WordPress-like admin panel.
    - Frontend: `http://localhost:3000`
    - Admin: `http://localhost:3000/admin`
 
+## Windows PowerShell fix for `npm`
+
+If you see this error:
+
+```
+npm.ps1 cannot be loaded because running scripts is disabled on this system
+```
+
+Use one of these options:
+
+1. Run npm via `npm.cmd` (no policy change):
+
+   ```powershell
+   npm.cmd run dev
+   ```
+
+2. Allow local scripts for your user and restart PowerShell:
+
+   ```powershell
+   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+   ```
+
+3. Or run commands in Command Prompt (`cmd`) instead of PowerShell:
+
+   ```cmd
+   npm run dev
+   ```
+
 ## Next improvements
 
 - Authentication for admin routes
