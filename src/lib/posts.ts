@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import clientPromise from "@/lib/mongodb";
 
 export type BlogPost = {
-  _id?: string;
+  _id?: ObjectId;
   title: string;
   slug: string;
   excerpt: string;
@@ -31,7 +31,7 @@ export async function createPost(post: BlogPost) {
     .collection<BlogPost>(COLLECTION)
     .insertOne({ ...post, createdAt: new Date() });
 
-  return { ...post, _id: result.insertedId.toString() };
+  return { ...post, _id: result.insertedId };
 }
 
 export async function deletePost(id: string) {
